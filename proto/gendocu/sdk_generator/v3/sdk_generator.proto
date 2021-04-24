@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option go_package = "git.gendocu.com/gendocu/GendocuPublicApis.git/sdk/go/gendocu/sdk_generator/v3;v3";
+option java_multiple_files = true;
+option java_package = "com.gendocu.api.sdkgenerator.v3";
+option java_outer_classname = "SdkGeneratorProto";
+
+package gendocu.sdk_generator.v3;
+
+import "gendocu/common/types.proto";
+
+message Version {
+  int32 major = 1;
+  int32 minor = 2;
+  string patch = 3;
+}
+message APIDescriptionGeneratorModel {
+  Version version = 1;
+  string description = 2;
+  map<string, MethodDescription> methods = 3;
+  map<string, ServiceDescription> services = 4;
+  map<string, TypeDescription> types = 5;
+}
+
+message MethodDescription {
+  string method_id = 1;
+  string service_id = 2;
+  string name = 3;
+  string description = 4;
+  string source_proto_file = 5;
+  string in_type_id = 6;
+  string out_type_id = 7;
+  repeated IncludeInfo include_info = 8;
+}
+
+message IncludeInfo {
+  gendocu.common.SDKProvider sdk_provider = 1;
+  string proto_pkg = 2;
+  string go_import_path = 3;
+  string go_pkg = 4;
+  string ts_import_path = 5;
+}
+
+message ServiceDescription {
+  string service_id = 1;
+  string short_name = 2;
+  string description = 3;
+  string source_proto_file = 4;
+  repeated IncludeInfo include_info = 5;
+}
+
+message TypeDescription {
+  string type_id = 1;
+  string short_name = 2;
+  string source_proto_file = 3;
+  repeated IncludeInfo include_info = 4;
+  repeated FieldDescription fields = 5;
+}
+
+message FieldDescription {
+  string name = 1;
+  string type_id = 2;
+}

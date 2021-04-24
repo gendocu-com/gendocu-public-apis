@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+option go_package = "git.gendocu.com/gendocu/GendocuPublicApis.git/sdk/go/gendocu/sdk_generator/v3;v3";
+option java_multiple_files = true;
+option java_package = "com.gendocu.api.sdkgenerator.v3";
+option java_outer_classname = "SdkGeneratorProto";
+
+package gendocu.sdk_generator.v3;
+
+import "gendocu/sdk_generator/v3/sdk_generator.proto";
+import "gendocu/common/types.proto";
+
+// The SdkGenerator is a service for managing builds, and code generation. It is used mostly by the Api Documentation UI.
+// Some methods migth require authorization. You can find the proto definition 'as it is' on https://github.com/gendocu-com/gendocu-public-apis.
+service SdkGenerator {
+  // GenerateInputCodeSnippets is a method for generating the code fragments in selected language that are preview of the method usage.
+  // You can find it below every method description - they have "add to code" button in top left corner
+  rpc GenerateInputCodeSnippets(GenerateInputCodeSnippetsRequest) returns (GenerateInputCodeSnippetsResponse);
+  // GenerateSDK is a method, that generates the code example for given sdk and methods.
+  rpc GenerateCodeSample(GenerateCodeSampleRequest) returns (GenerateCodeSampleResponse);
+  // GetBuild is a method for return the build details for given selector.
+  rpc GetBuild(BuildSelectorRequest) returns (Build);
+}
+
+message GenerateCodeSampleRequest {
+  string build_id = 1;
+  repeated string methods = 2;
+  gendocu.common.SDKProvider sdk_provider = 3;
+  gendocu.common.ProgrammingLanguage programming_lang = 4;
+}
+
+message GenerateCodeSampleResponse {
+  string code = 1;
+  map<int32, int32> highlights = 2;
+  map<int32, string> compilation_errors = 3;
+  gendocu.common.ProgrammingLanguage programming_lang = 4;
+  repeated string setup_steps = 5;
+}
+
+message GenerateInputCodeSnippetsRequest {
+  string build_id = 1;
+  gendocu.common.SDKProvider sdk_provider = 2;
+  gendocu.common.ProgrammingLanguage programming_lang = 3;
+}
+
+message GenerateInputCodeSnippetsResponse {
+  map<string, string> methodIdToCodeSnippet = 1;
+  gendocu.common.ProgrammingLanguage programming_lang = 2;
+}
+
+message GenerateSDKResponse {
+  repeated string methods = 1;
+  gendocu.sdk_generator.v3.APIDescriptionGeneratorModel api_description = 2;
+  gendocu.common.SDKProvider sdk_provider = 3;
+  gendocu.common.ProgrammingLanguage lang = 4;
+}
+
+message BuildSelectorRequest {
+  string build_id = 1;
+}
+
+message BuildWithOrgAndName {
+  string api_name = 1;
+  string organization = 2;
+}
+
+message Build {
+  string build_id = 1;
+  string organization = 2;
+  string api_name = 3;
+  gendocu.sdk_generator.v3.APIDescriptionGeneratorModel data = 5;
+}
+

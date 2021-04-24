@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "git.gendocu.com/gendocu/GendocuPublicApis.git/sdk/go/gendocu/common;common";
+option java_multiple_files = true;
+option java_package = "com.gendocu.api.sdkgenerator";
+option java_outer_classname = "SdkGeneratorProto";
+
+package gendocu.common;
+
+enum ProgrammingLanguage {
+  Go = 0;
+  Typescript = 1;
+  Python = 2;
+}
+
+enum SDKProvider {
+  GenDocuGit = 0;
+  Protofile = 1;
+}
+
+enum APISourceType {
+  Github = 0;
+}
