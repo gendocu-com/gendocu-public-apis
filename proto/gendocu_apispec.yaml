@@ -1,0 +1,7 @@
+spectype: gendocu
+servers:
+  - selector: "*.SdkGenerator"
+    envs:
+      - name: "prod"
+        urls:
+          - grpcwebs://ncjytmo301.execute-api.eu-central-1.amazonaws.com

@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package gendocu.sdk_generator.v3;
+
+message AuthenticationDescription {
+  repeated AuthenticationMethod methods = 2;
+}
+
+message AuthenticationMethod {
+  reserved 1,2,3,4;
+  string id = 6;
+  string title = 7;
+  string description = 5;
+  CallAuthenticationMethod call_authentication = 8;
+  ChannelAuthenticationMethod channel_authentication = 9;
+}
+
+message ChannelAuthenticationMethod {
+  oneof scheme{
+    NoAuthScheme no_auth = 1;
+  }
+}
+
+message CallAuthenticationMethod {
+  oneof scheme {
+    NoAuthScheme no_auth = 1;
+    TokenScheme token_scheme = 2;
+  }
+}
+
+message TokenScheme {
+  string example_value = 4;
+  message gRPCScheme {
+    string meta = 1;
+    string value_prefix = 3;
+  }
+  gRPCScheme grpc = 1;
+  message gRPCWebScheme {
+    string header = 1;
+    string value_prefix = 3;
+  }
+  gRPCWebScheme grpcweb = 2;
+  message RESTScheme {
+    string header = 1;
+    string value_prefix = 3;
+  }
+  RESTScheme rest = 3;
+}
+
+message NoAuthScheme {
+  bool no_auth = 1;
+}

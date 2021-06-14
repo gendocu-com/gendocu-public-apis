@@ -1,23 +1,33 @@
 syntax = "proto3";
-
-option go_package = "git.gendocu.com/gendocu/GendocuPublicApis.git/sdk/go/gendocu/common;common";
-option java_multiple_files = true;
-option java_package = "com.gendocu.api.sdkgenerator";
-option java_outer_classname = "SdkGeneratorProto";
-
 package gendocu.common;
 
 enum ProgrammingLanguage {
-  Go = 0;
-  Typescript = 1;
-  Python = 2;
+  GO = 0;
+  TYPESCRIPT = 1;
+  PYTHON = 2;
+  NODE_JS = 3;
+  PHP = 4;
+  JAVA = 5;
+  CPP = 6;
+  CSHARP = 7;
+  DART = 8;
+  KOTLIN = 9;
+  OBJECTIVE_C = 10;
+  RUBY = 11;
+  GRPCURL = 12;
+  REST_CURL = 13;
+  JAVASCRIPT = 14; // grpcweb
+  UNKNOWN_PROGRAMMING_LANGUAGES = 255;
 }
 
 enum SDKProvider {
-  GenDocuGit = 0;
-  Protofile = 1;
+  GENDOCU_GITEA = 0;
+  PROTOFILE = 1;
+  UNKNOWN_SDK_PROVIDER = 255;
 }
 
 enum APISourceType {
-  Github = 0;
+  GITHUB = 0;
+  PUBLIC = 1;
+  UNKNOWN_API_SOURCE = 255;
 }

@@ -1,17 +1,17 @@
 syntax = "proto3";
 
-option go_package = "git.gendocu.com/gendocu/GendocuPublicApis.git/sdk/go/gendocu/sdk_generator/v3;v3";
-option java_multiple_files = true;
-option java_package = "com.gendocu.api.sdkgenerator.v3";
-option java_outer_classname = "SdkGeneratorProto";
-
 package gendocu.sdk_generator.v3;
 
-import "gendocu/sdk_generator/v3/sdk_generator.proto";
-import "gendocu/common/types.proto";
+option go_package = "git.gendocu.com/ZwgNzRgkZeWNscQDUPC2A7Kh2PB3/GendocuApis3.git/sdk/go/gendocu/sdk_generator/v3;v3";
 
-// The SdkGenerator is a service for managing builds, and code generation. It is used mostly by the Api Documentation UI.
-// Some methods migth require authorization. You can find the proto definition 'as it is' on https://github.com/gendocu-com/gendocu-public-apis.
+import "gendocu/common/types.proto";
+import "gendocu/sdk_generator/v3/sdk_generator.proto";
+import "gendocu/sdk_generator/v3/authentication_model.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+// The SdkGenerator is a service for managing builds, and code generation. It is used mostly by the Api Documentation UI. Some methods migth require authorization.
 service SdkGenerator {
   // GenerateInputCodeSnippets is a method for generating the code fragments in selected language that are preview of the method usage.
   // You can find it below every method description - they have "add to code" button in top left corner
@@ -20,32 +20,66 @@ service SdkGenerator {
   rpc GenerateCodeSample(GenerateCodeSampleRequest) returns (GenerateCodeSampleResponse);
   // GetBuild is a method for return the build details for given selector.
   rpc GetBuild(BuildSelectorRequest) returns (Build);
+  // EnterPassphrase creates a session for given documentation. It returns an error in case of mismatch. The received session token might be send to obtain an private documentation description. You can set the passwords in the GenDocu Cloud Console.
+  rpc EnterPassword(EnterPasswordRequest) returns (EnterPasswordResponse);
 }
 
+//[Example]{"selector": {"filter": {"org_and_name": {"api_name": "GendocuPublicApis", "organization": "gendocu"}}}, "password": "my-secret-password"}
+message EnterPasswordRequest {
+    BuildSelectorRequest selector = 1;
+    string password = 2; // Do not share this password with anyone
+}
+
+//[Example]{"session_id": "the-unique-session-id-as-a-string"}
+message EnterPasswordResponse {
+  string session_id = 1; // Session id is valid 24 hours
+}
+
+// [Example]{"build_id": "01FR2WB88KWFMZFXAP2E7963HR", "selected_environment": "gcp"}
 message GenerateCodeSampleRequest {
   string build_id = 1;
   repeated string methods = 2;
   gendocu.common.SDKProvider sdk_provider = 3;
   gendocu.common.ProgrammingLanguage programming_lang = 4;
+  string selected_environment = 6; // environment name
+  string authentication_method_id = 8;
+  string authentication_token = 9;
 }
 
+// [Example]{"code": "some code in js", "code_output": "{field1: field2}"}
 message GenerateCodeSampleResponse {
   string code = 1;
   map<int32, int32> highlights = 2;
+  map<string, Lines> method_id_to_rich_highlight = 6; // includes also service creation and include part
   map<int32, string> compilation_errors = 3;
   gendocu.common.ProgrammingLanguage programming_lang = 4;
-  repeated string setup_steps = 5;
+  string code_output = 7;
+}
+message Lines {
+  repeated int32 line = 1;
 }
 
+// [Example]{"build_id": "01FR2WB88KWFMZFXAP2E7963HR", "selected_environment": "gcp"}
 message GenerateInputCodeSnippetsRequest {
   string build_id = 1;
   gendocu.common.SDKProvider sdk_provider = 2;
   gendocu.common.ProgrammingLanguage programming_lang = 3;
+  string authentication_method_id = 4;
+  string selected_environment = 5;
 }
 
 message GenerateInputCodeSnippetsResponse {
-  map<string, string> methodIdToCodeSnippet = 1;
+  map<string, string> method_id_to_code_snippet = 1; // includes only method calls
   gendocu.common.ProgrammingLanguage programming_lang = 2;
+  map<string, string> method_id_to_code_output = 3; // it is used to present the example output
+}
+
+message EnvironmentsRouting {
+  string environment_name = 1;
+  map<string, ServiceRouting> service_to_urls = 2;
+}
+message ServiceRouting {
+  repeated string url = 2;
 }
 
 message GenerateSDKResponse {
@@ -56,7 +90,10 @@ message GenerateSDKResponse {
 }
 
 message BuildSelectorRequest {
-  string build_id = 1;
+  oneof filter {
+    string build_id = 1;
+    BuildWithOrgAndName org_and_name = 2;
+  }
 }
 
 message BuildWithOrgAndName {
@@ -64,10 +101,52 @@ message BuildWithOrgAndName {
   string organization = 2;
 }
 
+// [Example]{
+//"build_id": "01FR2WB88KWFMZFXAP2E7963HR",
+//"organization":"gendocu",
+//"api_name": "GendocuPublicApis",
+//"grpc_repo_source_url": "https://github.com/gendocu-com/gendocu-public-apis",
+//"default_environment": "gcp",
+//"envs": [{"id": "gcp"}]
+//}
 message Build {
+  reserved 20, 21;
   string build_id = 1;
   string organization = 2;
   string api_name = 3;
   gendocu.sdk_generator.v3.APIDescriptionGeneratorModel data = 5;
+  SDKProvisioning sdk_provisioning = 6;
+  AuthenticationDescription authentication_description = 7;
+  repeated Environment envs = 8; // environments that are available
+  string default_environment = 9;
+  string grpc_repo_source_url = 10;
+  bool try_it_enabled = 11;
+
+  string logo_url = 40;
 }
 
+message Environment {
+  string id = 1;
+  map<string, string> service_grpc_url = 2;
+  map<string, string> service_webgrpc_url = 3;
+}
+
+message SDKProvisioning {
+  string fetch_url = 1;
+  string hash = 2;
+  google.protobuf.Timestamp date = 3;
+  string sdk_repo_commit_sha = 4;
+  string source_commit_sha = 5;
+  map<int32, ProvisioningInfo> provisioning_data = 6; // This field maps the available programming language to the provisioning information.
+}
+
+message ProvisioningInfo {
+  string repository_url = 1;
+  string error = 2;
+  bool code_snippets_supported = 3;
+}
+
+message UpdateBuildRequest {
+  Build build = 1;
+  google.protobuf.FieldMask update_mask = 4 [(google.api.field_behavior) = REQUIRED];
+}
