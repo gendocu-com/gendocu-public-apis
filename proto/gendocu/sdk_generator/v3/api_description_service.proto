@@ -11,16 +11,16 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-// The SdkGenerator is a service for managing builds, and code generation. It is used mostly by the Api Documentation UI. Some methods migth require authorization.
+// The SdkGenerator is a service for managing builds and code generation. It is used mostly by the Api Documentation UI. Some methods might require authorization.
 service SdkGenerator {
-  // GenerateInputCodeSnippets is a method for generating the code fragments in selected language that are preview of the method usage.
-  // You can find it below every method description - they have "add to code" button in top left corner
+  // GenerateInputCodeSnippets is a method for generating the code fragments in selected languages that preview the method used.
+  // You can find it below every method description - they have an "add to code" button in the top left corner
   rpc GenerateInputCodeSnippets(GenerateInputCodeSnippetsRequest) returns (GenerateInputCodeSnippetsResponse);
-  // GenerateSDK is a method, that generates the code example for given sdk and methods.
+  // GenerateCodeSample is a method that generates the code example for given SDK and methods.
   rpc GenerateCodeSample(GenerateCodeSampleRequest) returns (GenerateCodeSampleResponse);
-  // GetBuild is a method for return the build details for given selector.
+  // GetBuild is a method for returning the build details for a given selector.
   rpc GetBuild(BuildSelectorRequest) returns (Build);
-  // EnterPassphrase creates a session for given documentation. It returns an error in case of mismatch. The received session token might be send to obtain an private documentation description. You can set the passwords in the GenDocu Cloud Console.
+  // EnterPassword creates a session for given documentation. It returns an error in case of a mismatch. The received session token might be sent to obtain a private documentation description. You can set the passwords in the GenDocu Cloud Console.
   rpc EnterPassword(EnterPasswordRequest) returns (EnterPasswordResponse);
 }
 
