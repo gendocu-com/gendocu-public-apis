@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package gendocu.rpc_invoker.v1;
+
+/* RpcInvoker implements execution of feature 'Try it' for any grpc method. It calls the method using gRPC protocol. */
+service RpcInvoker {
+  /* Invokes the method. It adds rpc-header:
+    * request-source:gendocu-proxy
+    * proxy-request-id: <request-id>
+   */
+  rpc InvokeMethod(InvokeMethodRequest) returns (InvokeMethodResponse);
+}
+
+/*[Example]
+{
+  "service_id": "gendocu.sdk_generator.v3.SdkGenerator",
+  "method_id": "GetBuild",
+  "environment": "prod",
+  "body": "{\"build_id\": \"01FDHBYTKS2YX1SS9GX3RKNSGM\"}",
+  "headers": [{"name": "authorization", "value": "<auth-token>"}]
+}
+*/
+message InvokeMethodRequest {
+  string service_id = 1;
+  string method_id = 2;
+  string environment = 3;
+  string body = 4;
+  repeated Header headers = 5;
+  string build_id = 6;
+}
+
+message Header {
+  string name = 1;
+  string value = 2;
+}
+/*[Example]
+{
+  "response": "{\"FieldA\": 12, \"FieldB\": {\"FieldC\": 47}}",
+  "response_code": 0,
+  "request_debug_token": "a6568e86-f4a1-11ec-a7cb-a745ebf20d79"
+}
+ */
+message InvokeMethodResponse {
+  string response = 1;
+  int32  response_code = 2;
+  string response_message = 3;
+  string request_debug_token = 4;
+}
+
+message RequestMeta {
+  string request_id = 1;
+  string anonymous_user_id = 2;
+}
